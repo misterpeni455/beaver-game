@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tap Coin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: linear-gradient(180deg, #0f0c29, #302b63, #24243e);
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .header {
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .balance {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .balance span {
+      color: #ffd700;
+    }
+
+    .level {
+      background: rgba(255,255,255,0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .coin-area {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .coin {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle at 30% 30%, #ffe566, #f0a500, #c47f00);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      box-shadow: 0 0 40px rgba(255, 200, 0, 0.5),
+                  inset 0 -15px 30px rgba(0,0,0,0.3);
+      transition: transform 0.08s;
+      cursor: pointer;
+      border: 6px solid #ffcc00;
+      z-index: 5;
+    }
+
+    .coin:active {
+      transform: scale(0.90);
+    }
+
+    .tap-effect {
+      position: absolute;
+      font-size: 26px;
+      font-weight: bold;
+      color: #ffd700;
+      pointer-events: none;
+      animation: floatUp 0.7s forwards;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      z-index: 10;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-70px) scale(1.2); }
+    }
+
+    .per-tap {
+      font-size: 16px;
+      opacity: 0.85;
+      margin-bottom: 8px;
+    }
+
+    .token-value {
+      font-size: 14px;
+      color: #7affb3;
+      margin-bottom: 25px;
+    }
+
+    .upgrades {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .upgrade {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .upgrade-info h3 {
+      font-size: 16px;
+      margin-bottom: 3px;
+    }
+
+    .upgrade-info p {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    .buy-btn {
+      background: linear-gradient(90deg, #ffd700, #ffaa00);
+      color: #000;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .buy-btn:disabled {
+      background: #555;
+      color: #aaa;
+    }
+
+    .footer {
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="balance">💰 <span id="coins">0</span></div>
+    <div class="level">Ур. <span id="level">1</span></div>
+  </div>
+
+  <div class="main">
+    <div class="coin-area" id="coinArea">
+      <div class="coin" id="coin">🐹</div>
+    </div>
+
+    <div class="per-tap">+<span id="perTap">1</span> за тап</div>
+    <div class="token-value">Цена монеты: $<span id="tokenPrice">0.000100</span></div>
+
+    <div class="upgrades">
+      <div class="upgrade">
+        <div class="upgrade-info">
+          <h3>💪 Сила тапа</h3>
+          <p>Уровень <span id="powerLvl">1</span></p>
+        </div>
+        <button class="buy-btn" id="powerBtn">100</button>
+      </div>
+
+      <div class="upgrade">
+        <div class="upgrade-info">
+          <h3>⚡ Энергия</h3>
+          <p>Уровень <span id="energyLvl">1</span></p>
+        </div>
+        <button class="buy-btn" id="energyBtn">250</button>
+      </div>
+
+      <div class="upgrade">
+        <div class="upgrade-info">
+          <h3>🚀 Буст x2</h3>
+          <p>Уровень <span id="boostLvl">0</span></p>
+        </div>
+        <button class="buy-btn" id="boostBtn">500</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Tap Coin · Прототип</div>
+
+  <script>
+    let state = {
+      coins: 0,
+      perTap: 1,
+      powerLvl: 1,
+      energyLvl: 1,
+      boostLvl: 0,
+      level: 1,
+      totalTaps: 0,
+      boostActive: false
+    };
+
+    // Загрузка
+    const saved = localStorage.getItem('tapCoinSave');
+    if (saved) {
+      try {
+        state = JSON.parse(saved);
+      } catch (e) {}
+    }
+
+    function save() {
+      localStorage.setItem('tapCoinSave', JSON.stringify(state));
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return Math.floor(num).toString();
+    }
+
+    function getPowerPrice() {
+      return Math.floor(100 * Math.pow(1.45, state.powerLvl - 1));
+    }
+    function getEnergyPrice() {
+      return Math.floor(250 * Math.pow(1.5, state.energyLvl - 1));
+    }
+    function getBoostPrice() {
+      return Math.floor(500 * Math.pow(1.7, state.boostLvl));
+    }
+
+    function updateUI() {
+      document.getElementById('coins').innerText = formatNumber(state.coins);
+      document.getElementById('perTap').innerText = state.perTap;
+      document.getElementById('powerLvl').innerText = state.powerLvl;
+      document.getElementById('energyLvl').innerText = state.energyLvl;
+      document.getElementById('boostLvl').innerText = state.boostLvl;
+      document.getElementById('level').innerText = state.level;
+
+      document.getElementById('powerBtn').innerText = formatNumber(getPowerPrice());
+      document.getElementById('energyBtn').innerText = formatNumber(getEnergyPrice());
+      document.getElementById('boostBtn').innerText = formatNumber(getBoostPrice());
+
+      document.getElementById('powerBtn').disabled = state.coins < getPowerPrice();
+      document.getElementById('energyBtn').disabled = state.coins < getEnergyPrice();
+      document.getElementById('boostBtn').disabled = state.coins < getBoostPrice();
+
+      const price = (0.0001 + state.totalTaps * 0.00000012).toFixed(6);
+      document.getElementById('tokenPrice').innerText = price;
+    }
+
+    // === ГЛАВНОЕ: обработка тапа (работает и на телефоне) ===
+    const coin = document.getElementById('coin');
+
+    function doTap(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      let earn = state.perTap;
+      if (state.boostActive) earn *= 2;
+
+      state.coins += earn;
+      state.totalTaps++;
+      state.level = Math.floor(state.totalTaps / 40) + 1;
+
+      // Эффект
+      const effect = document.createElement('div');
+      effect.className = 'tap-effect';
+      effect.innerText = '+' + earn;
+
+      const rect = coin.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+      effect.style.left = x + 'px';
+      effect.style.top = y + 'px';
+      document.getElementById('coinArea').appendChild(effect);
+
+      setTimeout(() => effect.remove(), 700);
+
+      updateUI();
+      save();
+    }
+
+    // Вешаем и click, и touch
+    coin.addEventListener('click', doTap);
+    coin.addEventListener('touchstart', doTap, {passive: false});
+
+    // Кнопки улучшений
+    document.getElementById('powerBtn').addEventListener('click', () => {
+      const price = getPowerPrice();
+      if (state.coins >= price) {
+        state.coins -= price;
+        state.powerLvl++;
+        state.perTap++;
+        updateUI();
+        save();
+      }
+    });
+
+    document.getElementById('energyBtn').addEventListener('click', () => {
+      const price = getEnergyPrice();
+      if (state.coins >= price) {
+        state.coins -= price;
+        state.energyLvl++;
+        updateUI();
+        save();
+      }
+    });
+
+    document.getElementById('boostBtn').addEventListener('click', () => {
+      const price = getBoostPrice();
+      if (state.coins >= price) {
+        state.coins -= price;
+        state.boostLvl++;
+        state.boostActive = true;
+        updateUI();
+        save();
+
+        setTimeout(() => {
+          state.boostActive = false;
+          updateUI();
+        }, 10000);
+      }
+    });
+
+    // Старт
+    updateUI();
+  </script>
+</body>
+</html>
